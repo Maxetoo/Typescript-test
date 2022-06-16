@@ -25,37 +25,59 @@ const questionObj = [
         answer: 1,
     },
 ];
+let quizContainer = document.querySelector('.quiz-container');
 let questionNumber = document.querySelector('.question-number');
 let questionIndex = document.querySelector('.current-question');
 let currentQuestionText = document.querySelector('h5');
 let questionList = document.querySelector('.question-list');
+let option;
 let numberOfQuestion = questionObj.length;
 let askedQuestions = 1;
 let currentQuestion = 0;
-const structureApp = () => {
-    const element = questionObj[currentQuestion].option.map((value) => {
+let score = 0;
+document.addEventListener('DOMContentLoaded', () => {
+    questionNumber.textContent = numberOfQuestion;
+    structureApp(currentQuestion);
+});
+const structureApp = (current) => {
+    const element = questionObj[current].option.map((value) => {
         return `<div class="option">${value}</div>`;
     });
     questionList.innerHTML = element.join('');
+    questionIndex.innerHTML = askedQuestions;
+    currentQuestionText.textContent = questionObj[current].question;
+    handlePickAnswer(current);
 };
-const handlePickAnswer = () => {
-    const allOptions = document.querySelectorAll('.option');
-    allOptions.forEach((element) => {
+const handlePickAnswer = (currentQuestion) => {
+    const allOptions = questionList.querySelectorAll('.option');
+    allOptions.forEach((element, index) => {
         element.addEventListener('click', () => {
-            if (askedQuestions < numberOfQuestion + 1) {
+            if (index === questionObj[currentQuestion].answer) {
+                score++;
+            }
+            if (currentQuestion < numberOfQuestion - 1) {
                 currentQuestion++;
                 askedQuestions++;
             }
             else {
-                return alert('QUIZ OVER!');
+                gameEnded();
             }
+            structureApp(currentQuestion);
         });
     });
 };
-document.addEventListener('DOMContentLoaded', () => {
-    structureApp();
-    questionNumber.textContent = numberOfQuestion;
-    questionIndex.textContent = askedQuestions;
-    currentQuestionText.textContent = questionObj[currentQuestion].question;
-    handlePickAnswer();
-});
+const gameEnded = () => {
+    const gameOver = `<div class="game-over">
+                <h4>Game Over</h4>
+                <p>You scored ${score} out of ${numberOfQuestion} questions</p>
+                <div class="btn-container">
+                    <button type="button" class="retry-btn">RETRY</button>
+                </div>
+            </div>`;
+    quizContainer.innerHTML = gameOver;
+    const btn = quizContainer.querySelector('.retry-btn');
+    btn.addEventListener('click', () => {
+        window.location.reload();
+    });
+};
+handlePickAnswer(currentQuestion);
